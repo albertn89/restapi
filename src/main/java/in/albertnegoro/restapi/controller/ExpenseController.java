@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -15,8 +16,9 @@ import java.util.stream.Collectors;
 
 /**
  * This is controller class for Expense module
+ *
  * @author Albert N
- * */
+ */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -27,8 +29,9 @@ public class ExpenseController {
 
     /**
      * It will fetch the expenses from database
+     *
      * @return list
-     * */
+     */
     @GetMapping("/expenses")
     public List<ExpenseResponse> getExpenses() {
         log.info("API GET /expenses called");
@@ -45,7 +48,23 @@ public class ExpenseController {
     }
 
     /**
+     * It will fetch the single expense from database
+     *
+     * @param expenseId
+     * @return ExpenseResponse
+     */
+    @GetMapping("/expenses/{expenseId}")
+    public ExpenseResponse getExpenseById(@PathVariable String expenseId) {
+        log.info("API GET /expenses/{} called", expenseId);
+        ExpenseDTO expenseDTO = expenseService.getExpenseByExpenseId(expenseId);
+        log.info("Printing the expense details {}", expenseDTO);
+
+        return mapToExpenseResponse(expenseDTO);
+    }
+
+    /**
      * Mapper method for converting expense DTO object to expense response
+     *
      * @param expenseDTO
      * @return ExpenseResponse
      */

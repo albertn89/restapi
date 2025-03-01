@@ -2,6 +2,7 @@ package in.albertnegoro.restapi.service.impl;
 
 import in.albertnegoro.restapi.dto.ExpenseDTO;
 import in.albertnegoro.restapi.entity.ExpenseEntity;
+import in.albertnegoro.restapi.exceptions.ResourceNotFoundException;
 import in.albertnegoro.restapi.repository.ExpenseRepository;
 import in.albertnegoro.restapi.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 /**
  * Service implementation for Expense module
+ *
  * @author Albert N
  */
 @Service
@@ -26,6 +28,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     /**
      * It will fetch the expenses from database
+     *
      * @return list
      */
     @Override
@@ -42,7 +45,22 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     /**
+     * It will fetch the expense details from database
+     * @param expenseId
+     * @return ExpenseDTO
+     */
+    @Override
+    public ExpenseDTO getExpenseByExpenseId(String expenseId) {
+        ExpenseEntity expenseEntity = expenseRepository.findByExpenseId(expenseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense not found for the id " + expenseId));
+        log.info("Printing the expense entity details {}", expenseEntity);
+
+        return mapToExpenseDTO(expenseEntity);
+    }
+
+    /**
      * Mapper method to convert expense entity to expense DTO
+     *
      * @param expenseEntity
      * @return ExpenseDTO
      */
