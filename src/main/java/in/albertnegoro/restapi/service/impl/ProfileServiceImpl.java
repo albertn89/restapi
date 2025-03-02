@@ -2,11 +2,13 @@ package in.albertnegoro.restapi.service.impl;
 
 import in.albertnegoro.restapi.dto.ProfileDTO;
 import in.albertnegoro.restapi.entity.ProfileEntity;
+import in.albertnegoro.restapi.exceptions.ItemExistsException;
 import in.albertnegoro.restapi.repository.ProfileRepository;
 import in.albertnegoro.restapi.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -17,15 +19,21 @@ import java.util.UUID;
 public class ProfileServiceImpl implements ProfileService {
     private final ProfileRepository profileRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder encoder;
 
     /**
-     * It will save the user details to datbase
+     * It will save the user details to database
      *
      * @param profileDTO
      * @return ProfileDTO
      */
     @Override
     public ProfileDTO createProfile(ProfileDTO profileDTO) {
+        if (profileRepository.existsByEmail(profileDTO.getEmail())) {
+            throw new ItemExistsException("Profile already exists " + profileDTO.getEmail());
+        }
+
+        profileDTO.setPassword(encoder.encode(profileDTO.getPassword()));
         ProfileEntity profileEntity = mapToProfileEntity(profileDTO);
         profileEntity.setProfileId(UUID.randomUUID().toString());
         profileEntity = profileRepository.save(profileEntity);
